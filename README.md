@@ -14,6 +14,12 @@ The repository also includes a Codex plugin manifest:
 .codex-plugin/plugin.json
 ```
 
+And a repo-scoped Codex marketplace descriptor:
+
+```text
+.agents/plugins/marketplace.json
+```
+
 ## Install as a Skill
 
 Copy or clone `skills/obsidian-cli-plugins` into your local skills directory:
@@ -22,6 +28,16 @@ Copy or clone `skills/obsidian-cli-plugins` into your local skills directory:
 mkdir -p ~/.codex/skills
 cp -R skills/obsidian-cli-plugins ~/.codex/skills/obsidian-cli-plugins
 ```
+
+## Install as a Codex Plugin
+
+Add this repository as a Codex plugin marketplace:
+
+```bash
+codex plugin marketplace add DXShelley/obsidian-cli-plugins-skill
+```
+
+Then install `obsidian-cli-plugins` from the marketplace UI or plugin command flow.
 
 For OpenClaw, sync from the installed Codex skill:
 

@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-cli-plugins",
+  "interface": {
+    "displayName": "Obsidian CLI Plugins"
+  },
+  "plugins": [
+    {
+      "name": "obsidian-cli-plugins",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

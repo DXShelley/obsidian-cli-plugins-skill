@@ -39,6 +39,18 @@ The manifest points Codex to:
 skills/
 ```
 
+The repository also includes:
+
+```text
+.agents/plugins/marketplace.json
+```
+
+Users can add the repository as a marketplace with:
+
+```bash
+codex plugin marketplace add DXShelley/obsidian-cli-plugins-skill
+```
+
 ## Generic Agent Skill Platforms
 
 Use the raw skill directory:
