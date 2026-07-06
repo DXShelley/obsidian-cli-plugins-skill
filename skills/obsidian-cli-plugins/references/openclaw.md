@@ -155,7 +155,7 @@ Detailed state machine:
    python3 ~/.openclaw/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py attachment-stage --path "<runtime-path-1>" --type <image|audio|video|file> --label "<channel label or filename>" --batch-key "<conversation-sender-group>"
    ```
 
-   The returned `attachment_id` is private cache state. Do not write the vault, do not create a journal link, and do not tell the user the Obsidian record has been created.
+   The returned `attachment_id` is private cache state. Keep the vault unchanged at this stage, avoid journal-link side effects, and report only that the media was staged for a later record.
 3. Repeat staging for every subsequent media-only message under the same `--batch-key`. Preserve the channel order when possible, but never rely on order alone for correctness.
 4. When the text message arrives, first list staged media for that key with a command result, not model memory:
 
