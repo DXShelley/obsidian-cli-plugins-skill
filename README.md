@@ -109,6 +109,25 @@ Run the bundled tests:
 python3 -m pytest skills/obsidian-cli-plugins/scripts/tests
 ```
 
+## Website
+
+The project website is maintained in this repository and only describes `obsidian-cli-plugins`:
+
+- `/`: Obsidian skill page for inspiration capture, project incubation, task management, schedule management, attachment-backed records, and the less-is-more command design.
+- `?lang=en`: English content; Chinese is the default.
+- `#links`: friendly links to the image plugin page and OpenClaw media plugin page, which are maintained in their own repositories.
+- `#support`: project support section with WeChat Pay, WeChat reward, and Alipay QR images.
+
+Build locally:
+
+```bash
+cd website
+npm install
+npm run build
+```
+
+GitHub Pages is deployed by `.github/workflows/pages.yml` from the `dev` branch when `website/**` changes.
+
 ## Distribution Archives
 
 Prebuilt ZIP files are included under `dist/`:
