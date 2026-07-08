@@ -26,7 +26,10 @@ def default_dest_root() -> pathlib.Path:
 
 def ignore_names(_directory: str, names: list[str]) -> set[str]:
     ignored = {"__pycache__", ".pytest_cache", ".DS_Store"}
-    return {name for name in names if name in ignored or name.endswith(".pyc")}
+    result = {name for name in names if name in ignored or name.endswith(".pyc")}
+    if pathlib.Path(_directory).name == "scripts":
+        result.add("tests")
+    return result
 
 
 def validate_source(source: pathlib.Path) -> None:

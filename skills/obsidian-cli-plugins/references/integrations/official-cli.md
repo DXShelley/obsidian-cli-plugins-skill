@@ -30,9 +30,9 @@ Use this file when a user asks for native Obsidian CLI commands, non-plugin note
 Prefer the bundled script so agents can query this index without loading this reference:
 
 ```bash
-python3 <skill-dir>/scripts/obsidian_workflows.py official-commands
-python3 <skill-dir>/scripts/obsidian_workflows.py official-commands --category files
-python3 <skill-dir>/scripts/obsidian_workflows.py official-commands --search property --json
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py official-commands
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py official-commands --category files
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py official-commands --search property --json
 ```
 
 ## Syntax
@@ -75,4 +75,4 @@ The index was imported from `obsidian-cli-official@4.0.2` as a reference layer:
 
 ## Obsidian Manager comparison decision
 
-Do not merge `obsidian-manager` into the main workflow. It is a backward-compatibility layer for a specific research-note directory layout and points users to `knowledge obsidian`. If research-note templates are needed later, add a separate optional extension under `references/extensions.md` and keep it isolated from vault-wide journal, Git, and Tasks workflows.
+Do not merge `obsidian-manager` into the main workflow. It is a backward-compatibility layer for a specific research-note directory layout and points users to `knowledge obsidian`. If research-note templates are needed later, add a separate optional extension under `references/maintenance/extensions.md` and keep it isolated from vault-wide journal, Git, and Tasks workflows.

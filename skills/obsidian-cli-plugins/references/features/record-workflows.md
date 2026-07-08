@@ -1,6 +1,6 @@
 # Obsidian Record Workflows
 
-Use this file when adding records, cards, file-mode records, or attachment-backed records. Use `task-add.md` for todo/task additions.
+Use this file when adding records, cards, file-mode records, or attachment-backed records. Use `references/features/task-add.md` for todo/task additions.
 
 ## Inline record default
 
@@ -49,7 +49,7 @@ Accuracy rules:
 - Treat `--analysis-json` as metadata only. It may affect headline, kind, question, time, actors, and scenes, but must not replace the `--text` body.
 - Do not treat hand-written field extraction, fixed local rules, or manually assembled JSON as semantic analysis.
 - If model-side analysis is unavailable, fails, or produces no useful fields, do not block the record write; pass original `--text` and omit unsupported analysis fields. Do not claim semantic analysis succeeded.
-- Use only unified fields from `record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`.
+- Use only unified fields from `references/features/record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`.
 - The script normalizes known legacy aliases for resilience, but prompts should ask for unified field names.
 
 File-mode behavior:
@@ -59,7 +59,7 @@ File-mode behavior:
 3. Read QuickAdd choice `fleeting` from `.obsidian/plugins/quickadd/data.json`; render its configured template, normally `90_asset/templates/card-fleeting-note.md`, and write to its configured folder, normally `00_inbox/fleeting`.
 4. Stop if QuickAdd choice, template, folder config, frontmatter, or required template sections are missing.
 5. Required sections include `## 场景`, `## 灵感`, `## 后续行动`, `### 来源(Source)`, and `### 关联(Reference)`.
-6. Fill body sections using `record-body.md`; default content maps time to `## 时间`, scenes to `## 场景`, actors to `## 人物`, and original `--text` plus question/attachments to `## 灵感`.
+6. Fill body sections using `references/features/record-body.md`; default content maps time to `## 时间`, scenes to `## 场景`, actors to `## 人物`, and original `--text` plus question/attachments to `## 灵感`.
 7. Insert only a standard Markdown relative-path link under the journal note's `记录` section. Do not use wiki links or add tags in the journal index.
 8. Put weak internal Obsidian references under `### 关联(Reference)` and external source links under `### 来源(Source)`.
 
@@ -89,9 +89,9 @@ python3 <skill-dir>/scripts/obsidian_workflows.py attachment-pending --batch-key
 python3 <skill-dir>/scripts/obs_record_sync.py --mode file --period day --date today --text "<later text>" --type mixed --analysis-json '<normalized model json>' --staged-attachment "batch:<conversation-or-message-group>" --require-attachment
 ```
 
-Staged attachments are private cache items, not Obsidian records. `attachment-pending` is the only listing command for record consumption; do not use `attachment-list --batch-key default`, stale staged ids from model memory, or direct reads under `~/.cache/obsidian-cli-plugins/staged-attachments`. Load `openclaw.md` for the full cross-agent state machine, success criteria, and unsupported-channel failure rules.
+Staged attachments are private cache items, not Obsidian records. `attachment-pending` is the only listing command for record consumption; do not use `attachment-list --batch-key default`, stale staged ids from model memory, or direct reads under `~/.cache/obsidian-cli-plugins/staged-attachments`. Load `references/integrations/openclaw.md` for the full cross-agent state machine, success criteria, and unsupported-channel failure rules.
 
-For OpenClaw phone channels, also load `openclaw.md` before claiming same-turn media support. Current guidance: WeCom `mixed` is preferred for mobile media + text when readable paths are exposed; QQBot can work when every referenced media item has a readable local path; Feishu and current `openclaw-weixin` are not supported for attachment-backed records unless another layer exposes readable local paths.
+For OpenClaw phone channels, also load `references/integrations/openclaw.md` before claiming same-turn media support. Current guidance: WeCom `mixed` is preferred for mobile media + text when readable paths are exposed; QQBot can work when every referenced media item has a readable local path; Feishu and current `openclaw-weixin` are not supported for attachment-backed records unless another layer exposes readable local paths.
 
 ## Success criteria
 

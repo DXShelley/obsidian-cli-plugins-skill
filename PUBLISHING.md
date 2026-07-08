@@ -14,9 +14,9 @@ git clone https://github.com/DXShelley/obsidian-cli-plugins-skill.git
 
 Release assets:
 
-- `dist/obsidian-cli-plugins-codex-plugin-1.0.0.zip`
-- `dist/obsidian-cli-plugins-skill-public-20260706.zip`
-- `dist/obsidian-cli-plugins-skill-public-flat-20260706.zip`
+- `dist/obsidian-cli-plugins-codex-plugin-2.0.0.zip`
+- `dist/obsidian-cli-plugins-skill-public-20260708.zip`
+- `dist/obsidian-cli-plugins-skill-public-flat-20260708.zip`
 - `dist/SHA256SUMS`
 
 ## Codex Plugin
@@ -24,7 +24,7 @@ Release assets:
 Use the Codex plugin archive:
 
 ```text
-dist/obsidian-cli-plugins-codex-plugin-1.0.0.zip
+dist/obsidian-cli-plugins-codex-plugin-2.0.0.zip
 ```
 
 The plugin manifest is:
@@ -62,13 +62,13 @@ skills/obsidian-cli-plugins/
 For ZIP upload platforms, try the flat archive first:
 
 ```text
-dist/obsidian-cli-plugins-skill-public-flat-20260706.zip
+dist/obsidian-cli-plugins-skill-public-flat-20260708.zip
 ```
 
 If the platform expects a named top-level folder, use:
 
 ```text
-dist/obsidian-cli-plugins-skill-public-20260706.zip
+dist/obsidian-cli-plugins-skill-public-20260708.zip
 ```
 
 ## Claude Agent Skills
@@ -76,13 +76,13 @@ dist/obsidian-cli-plugins-skill-public-20260706.zip
 Upload the flat skill archive when the UI or API expects `SKILL.md` at archive root:
 
 ```text
-dist/obsidian-cli-plugins-skill-public-flat-20260706.zip
+dist/obsidian-cli-plugins-skill-public-flat-20260708.zip
 ```
 
 Use the folder archive if the platform expects the skill folder itself:
 
 ```text
-dist/obsidian-cli-plugins-skill-public-20260706.zip
+dist/obsidian-cli-plugins-skill-public-20260708.zip
 ```
 
 ## OpenClaw / ClawHub

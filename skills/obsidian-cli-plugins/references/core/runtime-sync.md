@@ -13,6 +13,11 @@ Current host defaults:
 - Monthly notes: `20_plan/23_monthly/YYYY-MM.md`
 - Quarterly notes: `20_plan/24_quarterly/YYYY-Qn.md`
 - Annual notes: `20_plan/25_annual/YYYY.md`
+- Project notes: `01_project/`, with optional topic subfolders such as `01_project/obsidian/`.
+- Project note template: `90_asset/templates/card-project-incubating-note.md`.
+- Project fragment templates: `90_asset/templates/card-project-fr.md`, `90_asset/templates/card-project-nfr.md`, and `90_asset/templates/card-project-decision.md`.
+- File-mode record notes: QuickAdd choice `fleeting`, currently routed to `00_inbox/fleeting/` with copied attachments under `00_inbox/fleeting/assets/<record-title>/`.
+- Durable skill source copy in the vault: `90_asset/skill/obsidian-cli-plugins/`.
 
 Do not edit scripts to move between hosts. Configure with environment variables or flags:
 
@@ -33,7 +38,7 @@ python3 <skill-dir>/scripts/obsidian_workflows.py doctor
 
 ## Safety gates
 
-- Use `vault-safety.md` before returning arbitrary vault content.
+- Use `references/core/vault-safety.md` before returning arbitrary vault content.
 - Resolve the active vault dynamically; do not use obsolete paths from older skills.
 - On multi-vault hosts, inspect `doctor.configured_vaults` and `doctor.resolved_vault`; do not guess.
 - Do not bypass the `.obsidian` directory check for sync, Git-mutating, note-writing, or task-query workflows. `--allow-non-vault` is only for controlled tests.
@@ -82,7 +87,7 @@ For cross-agent record creation, prefer:
 python3 <skill-dir>/scripts/obs_record_sync.py --period day --date today --text "<record text>" --topic <topic>
 ```
 
-For OpenClaw install/sync and staged media workflows, read `openclaw.md`.
+For OpenClaw install/sync and staged media workflows, read `references/integrations/openclaw.md`.
 
 ## Plugin command IDs
 
@@ -121,4 +126,4 @@ python3 <skill-dir>/scripts/obsidian_workflows.py official-commands --search <ke
 python3 <skill-dir>/scripts/obsidian_workflows.py official-commands --category <category>
 ```
 
-Read `official-cli.md` only when syntax details, risk rules, or the imported category overview are needed. For plugin command IDs, use runtime `commands --plugin <plugin-id>` instead of the static official reference.
+Read `references/integrations/official-cli.md` only when syntax details, risk rules, or the imported category overview are needed. For plugin command IDs, use runtime `commands --plugin <plugin-id>` instead of the static official reference.

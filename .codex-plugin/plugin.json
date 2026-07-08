@@ -1,6 +1,6 @@
 {
   "name": "obsidian-cli-plugins",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Obsidian vault records, tasks, projects, plugin commands, safe reads, and Git sync automation.",
   "author": {
     "name": "dxshelley",

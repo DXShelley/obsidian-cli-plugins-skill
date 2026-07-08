@@ -4,13 +4,13 @@ Use this file before reading, searching, summarizing, or returning arbitrary Obs
 
 ## Active vault rule
 
-- Do not use the old hard-coded path `~/syncthing/obsidian-2026`.
+- Do not use old hard-coded Syncthing vault paths.
 - Resolve the vault with `doctor`, `OBSIDIAN_VAULT_PATH`, Obsidian config discovery, `--vault current`, an exact `--vault` name, or `--vault-path`.
 - On hosts with multiple vaults, inspect `doctor.configured_vaults` and `doctor.resolved_vault` before reading or writing. Do not guess from folder names alone.
 - Treat `doctor` output as redacted by default. Use `doctor --verbose` only for local debugging when full absolute paths are necessary.
 - Write, Git-mutating, and task-query commands must target a directory containing `.obsidian`; `--allow-non-vault` is only for explicit controlled tests.
 - For the current host, the expected fallback is `~/git/obsidian-2026`.
-- Keep the Git preflight/edit/push rules from `runtime-sync.md`; do not revive the older "modify first, then ask whether to commit" flow.
+- Keep the Git preflight/edit/push rules from `references/core/runtime-sync.md`; do not revive the older "modify first, then ask whether to commit" flow.
 
 ## Scope
 
@@ -57,15 +57,26 @@ The bundled `obsidian_workflows.py` script enforces these rules in code. Do not 
 
 Use these directory meanings when routing user requests:
 
-- `20_plan/21_daily/`: daily journals, daily task query blocks, habit fields, daily review.
-- `20_plan/22_weekly/`: weekly planning and weekly focus.
+- `.obsidian/`: vault and plugin configuration. Read only minimal keys needed for vault discovery, plugin command discovery, QuickAdd routing, or Linter execution.
+- `00_inbox/fleeting/`: independent file-mode record cards created through QuickAdd. Copied record attachments live under `00_inbox/fleeting/assets/<record-title>/`.
+- `00_inbox/clippings/` and `00_inbox/literature/`: inbox collection areas. Treat as ordinary vault notes unless the user asks for a specific workflow.
+- `01_project/`: project files and project subfolders. Create project files with `project-create-sync`; update them with `project-template-structure`, Agent semantic analysis, and `project-record-sync`. Do not manually hard-code project headings.
+- `02_area/`: domain knowledge and ongoing areas. Prefer safe search/read; write only when the user explicitly asks to edit an area note.
+- `03_resource/`: collected/reference resources. Prefer safe search/read; write only when the user explicitly asks to edit a resource note.
+- `04_archived/`: archived or completed material. Treat as read-mostly; do not move content here unless the user explicitly asks for archive behavior.
+- `10_zenttelkasen/`, `30_tool/`, `80_interview/`, and branded/specialized folders: specialized content areas. Use safe read/search by default and avoid adding generic records there.
+- `20_plan/21_daily/`: daily journals, daily task query blocks, habit fields, daily review, and default inline `记录` entries.
+- `20_plan/22_weekly/`: weekly planning, weekly focus, and weekly tasks.
 - `20_plan/23_monthly/`: monthly goals and monthly tasks.
 - `20_plan/24_quarterly/`: quarterly goals and tasks.
 - `20_plan/25_annual/`: annual goals and tasks.
+- `20_plan/26_family/` and `20_plan/27_exam/`: planning subareas not currently owned by the deterministic journal/task commands unless the user targets them explicitly.
+- `90_asset/templates/`: workflow templates. Journal commands prefer period-specific `journal-*-auto.md` templates when present and otherwise use Journals with verification; file-mode records use the QuickAdd `fleeting` template; project creation/update depends on `card-project-incubating-note.md`, `card-project-fr.md`, `card-project-nfr.md`, `card-project-decision.md`, and the shared note head/tail templates.
 - `90_asset/data/pomodoro-data.md`: pomodoro or behavior-tracking data; summarize carefully and avoid over-sharing raw logs.
-- `02_area/`: domain knowledge.
-- `03_resource/`: collected resources.
-- `01_project/`: project notes.
+- `90_asset/skill/obsidian-cli-plugins/`: durable vault copy of this skill. Use it for source synchronization, not as a normal note-writing destination.
+- `90_asset/attachments/`, `30_tool/assets/`, and note-local `assets/` folders: asset storage. Only copy/link files through the record/project workflow that owns the target note.
+- `90_asset/keepassxc/`: credential-sensitive storage. Skip unless the user explicitly requests an exact file and confirms the risk.
+- `backups/`, `lfs/`, and `.git/`: operational storage. Do not read or modify as note content.
 
 If a request is specifically about daily/weekly/monthly/quarterly/yearly todos, prefer the deterministic task workflows in `obsidian_workflows.py` over ad hoc search.
 

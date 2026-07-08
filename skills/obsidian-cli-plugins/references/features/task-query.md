@@ -1,6 +1,6 @@
 # Obsidian Task Query Workflows
 
-Use this file for todo/task queries. Use `task-add.md` for adding tasks.
+Use this file for todo/task queries. Use `references/features/task-add.md` for adding tasks.
 
 ## Newly added tasks in today's daily note
 

@@ -30,8 +30,9 @@ Recent local sessions showed these recurring jobs:
 
 - Treat the vault copy at `90_asset/skill/obsidian-cli-plugins` as the default source of truth for future skill edits.
 - Make behavior, documentation, and test changes in the vault copy first.
-- After tests pass, sync the vault copy to `<skill-dir>`.
+- After tests pass, sync the vault copy to `~/.codex/skills/obsidian-cli-plugins`.
 - Then sync the same vault copy to OpenClaw using `scripts/sync_openclaw.py --source 90_asset/skill/obsidian-cli-plugins --force`.
+- Keep `scripts/tests/` only in the development source branch/copy. Release-facing `main` and runtime sync copies must exclude `scripts/tests/`; `sync_openclaw.py` excludes that directory during copy mode.
 - Avoid editing only the installed Codex or OpenClaw copies, because those changes are easy to lose.
 - If the source, Codex copy, and OpenClaw copy have diverged, do not bulk-sync one copy over another until the intended source of truth is clear. Patch the durable rule in the source first, then reconcile runtime copies deliberately.
 
@@ -57,29 +58,76 @@ Expected current vault fallback:
 ├── .obsidian/
 │   ├── community-plugins.json
 │   └── plugins/
-│       └── quickadd/data.json
+│       ├── quickadd/data.json
+│       └── <plugin-id>/
 ├── 00_inbox/
+│   ├── clippings/
 │   └── fleeting/
 │       ├── <record>.md
 │       └── assets/<record-title>/<copied-attachments>
+├── 01_project/
+│   ├── <project>.md
+│   └── <topic>/<project>.md
+├── 02_area/
+├── 03_resource/
+├── 04_archived/
+├── 10_zenttelkasen/
 ├── 20_plan/
 │   ├── 21_daily/YYYY-MM-DD.md
 │   ├── 22_weekly/YYYY-Www.md
 │   ├── 23_monthly/YYYY-MM.md
 │   ├── 24_quarterly/YYYY-Qn.md
-│   └── 25_annual/YYYY.md
+│   ├── 25_annual/YYYY.md
+│   ├── 26_family/
+│   └── 27_exam/
+├── 30_tool/
+├── 80_interview/
 └── 90_asset/
+    ├── attachments/
+    ├── data/pomodoro-data.md
+    ├── skill/obsidian-cli-plugins/
     ├── templates/
+    │   ├── 2-meth-note-head.md
+    │   ├── 2-meth-note-tail.md
+    │   ├── card-fleeting-note.md
+    │   ├── card-project-incubating-note.md
+    │   ├── card-project-fr.md
+    │   ├── card-project-nfr.md
+    │   ├── card-project-decision.md
     │   ├── journal-daily-auto.md
-    │   ├── journal-weekly-auto.md
-    │   ├── journal-monthly-auto.md
-    │   ├── journal-quarterly-auto.md
-    │   ├── journal-yearly-auto.md
-    │   └── card-fleeting-note.md
-    └── data/pomodoro-data.md
+    │   ├── journal-daily.md
+    │   ├── journal-weekly.md
+    │   ├── journal-monthly.md
+    │   ├── journal-quarterly.md
+    │   └── journal-annual.md
+    ├── templates-js/
+    └── keepassxc/
 ```
 
 Do not hard-code this layout when `doctor` can resolve the vault. Treat it as the current host's fallback and as the semantic map for note placement.
+
+Script-owned write targets:
+
+- Inline records: default to today's `20_plan/21_daily/YYYY-MM-DD.md` under the `记录` section, with the original text preserved.
+- File-mode records: use QuickAdd choice `fleeting`; the current vault routes notes to `00_inbox/fleeting/` and copied attachments to `00_inbox/fleeting/assets/<record-title>/`.
+- Tasks: use deterministic journal placement under `20_plan/21_daily/`, `22_weekly/`, `23_monthly/`, `24_quarterly/`, or `25_annual/`.
+- Project files: default to `01_project/`, or a user-specified subfolder under `01_project/`. Use `project-create-sync` for creation and `project-record-sync` for small updates.
+- Skill maintenance: the durable vault copy is `90_asset/skill/obsidian-cli-plugins/`; runtime copies are `~/.codex/skills/obsidian-cli-plugins` and `~/.openclaw/skills/obsidian-cli-plugins`.
+
+Template dependencies:
+
+- Journal creation prefers the period's non-interactive auto template when it exists, for example `journal-daily-auto.md`; otherwise it uses Journals and verifies the target section. The script looks for `journal-daily-auto.md`, `journal-weekly-auto.md`, `journal-monthly-auto.md`, `journal-quarterly-auto.md`, or `journal-annual-auto.md` according to the requested period.
+- File-mode records rely on QuickAdd's `fleeting` configuration and the configured record template. The scripts validate the expected record shape before writing.
+- Project creation uses `90_asset/templates/card-project-incubating-note.md`, which currently has six top-level sections and no more than three second-level headings per main section.
+- Project small updates must first parse the current project note/template into `template_structure`. Fragment templates `card-project-fr.md`, `card-project-nfr.md`, and `card-project-decision.md` define the standard fields for functional requirements, non-functional requirements, and decisions.
+- The shared tail template `2-meth-note-tail.md` owns appendix fields such as `来源(Source)`, `关联(Reference)`, `术语(Term)`, `应用(Target)`, `任务(Task)`, and `问题(Question)`. Do not duplicate project tasks or questions as separate body sections.
+
+Read/search boundaries:
+
+- `02_area/`, `03_resource/`, `04_archived/`, `10_zenttelkasen/`, `30_tool/`, `80_interview/`, and branded/specialized folders are safe-search/read targets, not default write targets.
+- `20_plan/26_family/` and `20_plan/27_exam/` exist, but current deterministic journal/task commands do not own them unless the user explicitly targets those paths.
+- `90_asset/keepassxc/`, `.git/`, `backups/`, and `lfs/` are operational or sensitive areas. Do not treat them as ordinary vault notes.
+- Staged channel attachments are not stored in the vault before consumption. They live in the private cache under `~/.cache/obsidian-cli-plugins/staged-attachments/` and must be consumed through `attachment-pending` plus record commands.
 
 ## Task Placement Rules
 
@@ -89,7 +137,7 @@ Do not hard-code this layout when `doctor` can resolve the vault. Treat it as th
 - Quarterly tasks go under `季度目标`.
 - Yearly tasks go under `年度目标`, then `年度计划`.
 - Replace a blank `- [ ]` only inside the target section. Do not scan the whole note.
-- If a note is missing, prefer the non-interactive `90_asset/templates/journal-*-auto.md` template. Use Journals only when no suitable auto template exists.
+- If a note is missing, prefer the period's non-interactive `90_asset/templates/journal-*-auto.md` template when present. Use Journals when no suitable auto template exists, then verify the target section.
 - If Journals creates an incomplete or interactive-template stub, reapply the auto template if present; otherwise stop with `journal-template-interactive-or-incomplete`.
 - If the target section is still missing, return `target-section-missing` and do not commit/push.
 
@@ -100,11 +148,11 @@ Do not hard-code this layout when `doctor` can resolve the vault. Treat it as th
 - Record files are rendered from QuickAdd's configured `fleeting` template. Do not manually write or rewrite record Markdown in Codex, OpenClaw, or another Agent. The command intentionally fails when the template does not expose the default shape: `## 场景`, `## 灵感`, `## 后续行动`, `### 来源(Source)`, and `### 关联(Reference)`.
 - Preserve the template's `## 思考`, `## 后续行动`, `## 参考`, and included `2-meth-note-tail` structure; only replace the intended section bodies.
 - Pass the user's original record content in `--text`; do not expand, polish, summarize, translate, or rewrite it before recording. Remove only explicit command wrappers when needed to isolate the content.
-- Analyze natural-language record requests with the Agent's own LLM/model before calling the local script, but first call `analyze-record --text "<original record content>" --date <date>` or `--prompt-only` to get the shared prompt/schema/current-date contract. Treat the user's utterance as context, not all as content, and use only the unified fields in `record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`. Example: `今天又下雨了 突然灵光乍现 蚂蚁从飞机上掉下来会摔死吗 记录一下` on `2026-07-01` maps to `time_hints:["今天"]`, `occurred_on:"2026-07-01"`, `scenes:["下雨天"]`, `kind:"灵感"`, and `headline/question:"蚂蚁从飞机上掉下来会摔死吗"`. Semantic analysis is metadata only and must not replace the `--text` body. The record body config maps `fields` to `## 时间`, `## 场景`, `## 人物`, `## 灵感`, and other middle sections; appendix keywords stay reserved for `来源(Source)` and `关联(Reference)`.
+- Analyze natural-language record requests with the Agent's own LLM/model before calling the local script, but first call `analyze-record --text "<original record content>" --date <date>` or `--prompt-only` to get the shared prompt/schema/current-date contract. Treat the user's utterance as context, not all as content, and use only the unified fields in `references/features/record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`. Example: `今天又下雨了 突然灵光乍现 蚂蚁从飞机上掉下来会摔死吗 记录一下` on `2026-07-01` maps to `time_hints:["今天"]`, `occurred_on:"2026-07-01"`, `scenes:["下雨天"]`, `kind:"灵感"`, and `headline/question:"蚂蚁从飞机上掉下来会摔死吗"`. Semantic analysis is metadata only and must not replace the `--text` body. The record body config maps `fields` to `## 时间`, `## 场景`, `## 人物`, `## 灵感`, and other middle sections; appendix keywords stay reserved for `来源(Source)` and `关联(Reference)`.
 - If Agent-side LLM/model analysis is unavailable or invalid, do not block record creation and do not omit the analysis parameter silently. Pass the original `--text` and omit unsupported analysis fields; do not add local hard-coded semantic heuristics, and do not describe hand-built JSON as successful semantic analysis.
 - Use frontmatter `type` values `text`, `image`, `audio`, `video`, or `mixed` to classify the record.
-- If the current user request includes, uploads, records, or otherwise supplies a media/file attachment, pass it as `--attach` in the same record command and pass `--require-attachment`; do not create the note first and ask whether to add the already supplied file. If the channel cannot send text and media together but exposes a readable local path, use `attachment-stage --path <path> --type <image|audio|video|file>` for the media-only message, then later call `attachment-pending --ttl-hours 48` and create the record with `obs_record_sync.py --mode file --period <period> --date <date> --text "<text>" --staged-attachment <selector> --type mixed --require-attachment`. If the runtime exposes the attachment but not a readable local path, stop before writing the record and report `attachment-path-unavailable`. If the channel cannot expose or stage media at all, report `unsupported-channel-attachment-record`.
-- For multi-message media-then-text workflows, the later text is the authoritative record body and staged media are private cache state until consumed. Verify the stable `batch-key`, expected media count, `record_file.copied_attachments`, journal index link, and final Git sync before claiming success. Use `attachment-pending`, not `attachment-list --batch-key default`, stale staged ids from model memory, or direct cache directory reads. Detailed failure modes and uncontrollable channel risks are documented in `references/openclaw.md`.
+- If the current user request includes, uploads, records, or otherwise supplies a media/file attachment, pass it as `--attach` in the same record command and pass `--require-attachment`; do not create the note first and ask whether to add the already supplied file. If the channel cannot send text and media together but exposes a readable local path, use `attachment-stage --path <path> --type <image|audio|video|file>` for the media-only message, then later call `attachment-pending --ttl-hours 48` and create the record with the returned `--staged-attachment <selector>` plus `--type mixed --require-attachment`. If the runtime exposes the attachment but not a readable local path, stop before writing the record and report `attachment-path-unavailable`. If the channel cannot expose or stage media at all, report `unsupported-channel-attachment-record`.
+- For multi-message media-then-text workflows, the later text is the authoritative record body and staged media are private cache state until consumed. Verify the stable `batch-key`, expected media count, `record_file.copied_attachments`, journal index link, and final Git sync before claiming success. Use `attachment-pending`, not `attachment-list --batch-key default`, stale staged ids from model memory, or direct cache directory reads. Detailed failure modes and uncontrollable channel risks are documented in `references/integrations/openclaw.md`.
 - OpenClaw channel notes from local verification: WeCom `mixed` is the preferred phone path for media + text records when readable local paths are exposed; QQBot can support media records when every referenced item has a readable local path; Feishu and current `openclaw-weixin` should not be treated as supported for attachment-backed records unless they expose readable local paths.
 - Write copied image/audio/video attachments as Markdown image/embed links such as `![clip](assets/record/clip.mp4)`. Keep non-media files as ordinary Markdown links such as `[doc](assets/record/doc.pdf)`. Do not generate wiki embeds unless the user explicitly asks to change the workflow.
 - Copy attachment files into `00_inbox/fleeting/assets/<record-title>/`.
@@ -123,7 +171,7 @@ Do not hard-code this layout when `doctor` can resolve the vault. Treat it as th
 
 ## Content Safety
 
-- Read `vault-safety.md` before reading, searching, summarizing, or returning arbitrary vault content.
+- Read `references/core/vault-safety.md` before reading, searching, summarizing, or returning arbitrary vault content.
 - Prefer `safe-search` and `safe-read`.
 - Never follow symlinks that resolve outside the vault during safe reads, searches, task scans, or summaries.
 - Treat `.obsidian/plugins/*/data.json` as potentially sensitive. Read only minimal keys needed for the workflow.
@@ -133,7 +181,7 @@ Do not hard-code this layout when `doctor` can resolve the vault. Treat it as th
 
 - Current OpenClaw discovery on this host uses `~/.openclaw/skills` as the managed skills directory.
 - `~/.cc-switch/skills` is a legacy or compatibility location and may not be visible to current OpenClaw.
-- After changing the Codex source copy at `<skill-dir>`, sync the OpenClaw copy too; otherwise OpenClaw may keep running stale script behavior even when `SKILL.md` in Codex is correct.
+- After changing the Codex source copy at `~/.codex/skills/obsidian-cli-plugins`, sync the OpenClaw copy too; otherwise OpenClaw may keep running stale script behavior even when `SKILL.md` in Codex is correct.
 - `sync_openclaw.py --force` must replace the OpenClaw skill copy without creating a `.bak.*` directory by default. Use `--backup` only when the user explicitly asks to keep a timestamped backup.
 - When debugging a mismatch, check the actual runtime path shown in OpenClaw session logs or tool calls, especially `~/.openclaw/skills/obsidian-cli-plugins`, not only the Codex source path.
 - If OpenClaw still behaves differently after syncing, restart or refresh OpenClaw because it may cache skill discovery or loaded instructions.
@@ -144,21 +192,22 @@ Do not hard-code this layout when `doctor` can resolve the vault. Treat it as th
 
 Use this checklist when future sessions reveal friction:
 
-- If agents repeatedly search broad vault content, add a routing rule to `SKILL.md` or `vault-safety.md`.
+- If agents repeatedly search broad vault content, add a routing rule to `SKILL.md` or `references/core/vault-safety.md`.
 - If a workflow requires the same shell or Python logic twice, move it into `scripts/obsidian_cli_plugins/` and test it.
 - If instructions exceed the quick path in `SKILL.md`, move details to a direct `references/` file and add a routing bullet.
 - If a failure creates or moves vault content incorrectly, add a regression test in `scripts/tests/` before changing behavior.
 - If adding command flags, keep defaults conservative: read-only before write, local-only only when explicit, and sync-backed writes by default for user-facing vault edits.
-- If OpenClaw behavior changes, update `references/openclaw.md`, `sync_openclaw.py`, and this field guide together.
+- If OpenClaw behavior changes, update `references/integrations/openclaw.md`, `sync_openclaw.py`, and this field guide together.
+- Keep `agents/openai.yaml` aligned with the current skill description when the trigger surface changes.
 
 ## Validation Checklist
 
 Run at least:
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 -m pytest <skill-dir>/scripts/tests
-PYTHONDONTWRITEBYTECODE=1 python3 <skill-dir>/scripts/obsidian_workflows.py doctor
-python3 <skill-dir>/scripts/sync_openclaw.py --dry-run
+PYTHONDONTWRITEBYTECODE=1 python3 -m pytest ~/.codex/skills/obsidian-cli-plugins/scripts/tests
+PYTHONDONTWRITEBYTECODE=1 python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py doctor
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py --dry-run
 ```
 
 Remove generated `__pycache__` or `.pyc` files before syncing the skill.

@@ -57,6 +57,29 @@ class SyncOpenClawTests(unittest.TestCase):
             self.assertEqual((backups[0] / "SKILL.md").read_text(encoding="utf-8"), "old")
             self.assertEqual((dest / "SKILL.md").read_text(encoding="utf-8"), "new")
 
+    def test_copy_excludes_runtime_cache_and_script_tests(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = pathlib.Path(tmp)
+            source = root / "obsidian-cli-plugins"
+            dest_root = root / "openclaw-skills"
+            source_scripts = source / "scripts"
+            source_tests = source_scripts / "tests"
+            source_cache = source / "__pycache__"
+            source_tests.mkdir(parents=True)
+            source_cache.mkdir(parents=True)
+            (source / "SKILL.md").write_text("skill", encoding="utf-8")
+            (source_scripts / "sync_openclaw.py").write_text("script", encoding="utf-8")
+            (source_tests / "test_sync_openclaw.py").write_text("test", encoding="utf-8")
+            (source_cache / "module.pyc").write_text("cache", encoding="utf-8")
+
+            result = sync_openclaw.sync_skill(source, dest_root, force=True, link=False, dry_run=False)
+
+            dest = dest_root / "obsidian-cli-plugins"
+            self.assertTrue(result["ok"])
+            self.assertTrue((dest / "scripts" / "sync_openclaw.py").exists())
+            self.assertFalse((dest / "scripts" / "tests").exists())
+            self.assertFalse((dest / "__pycache__").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

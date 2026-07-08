@@ -132,8 +132,12 @@ GitHub Pages is deployed by `.github/workflows/pages.yml` from the `dev` branch 
 
 Prebuilt ZIP files are included under `dist/`:
 
-- `obsidian-cli-plugins-codex-plugin-1.0.0.zip`: Codex plugin package with `.codex-plugin/plugin.json`.
-- `obsidian-cli-plugins-skill-public-20260706.zip`: includes the top-level `obsidian-cli-plugins/` folder.
-- `obsidian-cli-plugins-skill-public-flat-20260706.zip`: contains `SKILL.md` at the archive root for platforms that expect flat uploads.
+- `obsidian-cli-plugins-codex-plugin-2.0.0.zip`: Codex plugin package with `.codex-plugin/plugin.json`.
+- `obsidian-cli-plugins-skill-public-20260708.zip`: includes the top-level `obsidian-cli-plugins/` folder.
+- `obsidian-cli-plugins-skill-public-flat-20260708.zip`: contains `SKILL.md` at the archive root for platforms that expect flat uploads.
 
 See [PUBLISHING.md](PUBLISHING.md) for platform-specific publishing notes.
+
+## Support this project
+
+If this skill makes Obsidian recording easier, you can support ongoing maintenance from the project page: [Support this project](https://dxshelley.github.io/obsidian-cli-plugins-skill/#support).

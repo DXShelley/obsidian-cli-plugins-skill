@@ -11,15 +11,15 @@ On older OpenClaw or OpenClaw-adjacent runtimes, `~/.cc-switch/skills/obsidian-c
 Use the bundled sync script from the Codex skill source:
 
 ```bash
-python3 <skill-dir>/scripts/sync_openclaw.py --dry-run
-python3 <skill-dir>/scripts/sync_openclaw.py
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py --dry-run
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py
 ```
 
 Override the OpenClaw skills directory when needed:
 
 ```bash
-OPENCLAW_SKILLS_DIR=/path/to/openclaw/skills python3 <skill-dir>/scripts/sync_openclaw.py
-python3 <skill-dir>/scripts/sync_openclaw.py --dest /path/to/openclaw/skills
+OPENCLAW_SKILLS_DIR=/path/to/openclaw/skills python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py --dest /path/to/openclaw/skills
 ```
 
 If the destination already exists, use `--force`; the script replaces the existing OpenClaw skill copy without creating a backup. Add `--backup` only when a timestamped backup is explicitly needed. Prefer copy mode for cross-platform use. Use `--link` only on systems where symlinks are reliable for the target Agent runtime.
@@ -155,7 +155,7 @@ Detailed state machine:
    python3 ~/.openclaw/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py attachment-stage --path "<runtime-path-1>" --type <image|audio|video|file> --label "<channel label or filename>" --batch-key "<conversation-sender-group>"
    ```
 
-   The returned `attachment_id` is private cache state. Keep the vault unchanged at this stage, avoid journal-link side effects, and report only that the media was staged for a later record.
+   The returned `attachment_id` is private cache state. Do not write the vault, do not create a journal link, and do not tell the user the Obsidian record has been created.
 3. Repeat staging for every subsequent media-only message under the same `--batch-key`. Preserve the channel order when possible, but never rely on order alone for correctness.
 4. When the text message arrives, first list staged media for that key with a command result, not model memory:
 
@@ -204,8 +204,8 @@ Risks and uncontrollable points:
 - Obsidian rendering support differs by media type and platform. The skill writes standard Markdown embeds/links; it cannot guarantee that every Obsidian client previews every codec or file format.
 - Cross-Agent semantic analysis can differ. The local script only normalizes and validates the shared schema; it cannot force another Agent model to infer the same `kind`, `scene`, or `headline`. Consistency depends on all Agents using the same prompt contract and passing model-produced JSON through `analyze-record --normalized-only`.
 
-For channel robots that deliver several media messages followed by one text command such as `将以上三个媒体文件记录到 ob 中`, use the conversation id, sender id plus timestamp bucket, or another runtime-stable request group as `--batch-key`. Stage every media file under that key, do not semantically analyze only the first file as the whole user intent, then create a file-mode record with `--mode file --text "<later text content>" --staged-attachment batch:<key> --require-attachment`. After the record command returns, verify `len(record_file.copied_attachments)` equals the number of staged files referenced by the user before reporting success.
+For channel robots that deliver several media messages followed by one text command such as `将以上三个媒体文件记录到 ob 中`, use the conversation id, sender id plus timestamp bucket, or another runtime-stable request group as `--batch-key`. Stage every media file under that key, do not semantically analyze only the first file as the whole user intent, then record with `--staged-attachment batch:<key>`. After the record command returns, verify `len(record_file.copied_attachments)` equals the number of staged files referenced by the user before reporting success.
 
-Before this call, OpenClaw must use its own LLM/model to analyze the whole user utterance and pass the model-produced result through `--analysis-json`. Use only the unified fields from `references/record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`. Pass the user's original record content in `--text`; do not expand, polish, summarize, translate, or rewrite it before recording. Prefer `headline` built from the core idea, not the full contextual utterance; the script falls back to `question`, then `insight`, then the full `--text` when no headline is provided. Body sections are filled by `fields` plus built-in formatters; appendix keywords such as `source_links` and `reference_links` are reserved for `来源(Source)` and `关联(Reference)`. The validator normalizes known legacy aliases such as `scene`, `time_clues`, and `title` for resilience and returns diagnostics, but OpenClaw prompts must still ask the model for unified names. Do not claim semantic analysis succeeded when the JSON was hand-written, assembled from fixed rules, or manually inferred without a model analysis step. Semantic analysis is metadata only and must not replace the note body. If analysis returns no useful unified fields or the runtime cannot perform model-side analysis, do not block the record write; pass the original `--text` and omit unsupported analysis fields.
+Before this call, OpenClaw must use its own LLM/model to analyze the whole user utterance and pass the model-produced result through `--analysis-json`. Use only the unified fields from `references/features/record-body.md`: `kind`, `headline`, `occurred_on`, `time_hints`, `scenes`, `actors`, `insight`, `question`, `reflection`, `next_actions`, and `intent`. Pass the user's original record content in `--text`; do not expand, polish, summarize, translate, or rewrite it before recording. Prefer `headline` built from the core idea, not the full contextual utterance; the script falls back to `question`, then `insight`, then the full `--text` when no headline is provided. Body sections are filled by `fields` plus built-in formatters; appendix keywords such as `source_links` and `reference_links` are reserved for `来源(Source)` and `关联(Reference)`. The validator normalizes known legacy aliases such as `scene`, `time_clues`, and `title` for resilience and returns diagnostics, but OpenClaw prompts must still ask the model for unified names. Do not claim semantic analysis succeeded when the JSON was hand-written, assembled from fixed rules, or manually inferred without a model analysis step. Semantic analysis is metadata only and must not replace the note body. If analysis returns no useful unified fields or the runtime cannot perform model-side analysis, do not block the record write; pass the original `--text` and omit unsupported analysis fields.
 
 It may call `obsidian_workflows.py record-sync` directly when needed, or explicitly local-only `record` for local-only work. It must not create Markdown files directly in `00_inbox/fleeting`, and it must not silently omit `--analysis-json` for record creation. The script renders the QuickAdd `fleeting` template and rejects records when the configured template does not match the default record shape.

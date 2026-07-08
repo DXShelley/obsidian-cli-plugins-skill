@@ -41,7 +41,7 @@ Before adding a task, decide:
 2. Target period and note: choose `day`, `week`, `month`, `quarter`, or `year`, then choose the note date that contains the task date or requested period.
 3. Task type/tag: use explicit `#tag` if present, explicit `--kind` if provided, otherwise pass `--kind auto`.
 4. Task dates: use single-day dates for concrete dates; use period default ranges only when the user asks for a period task without a concrete date.
-5. Journal creation: if the chosen note does not exist, create it from the period's non-interactive `90_asset/templates/journal-*-auto.md` template and verify the expected file exists and contains the target task section before writing.
+5. Journal creation: if the chosen note does not exist, prefer the period's non-interactive `90_asset/templates/journal-*-auto.md` template when present; otherwise use Journals. Verify the expected file exists and contains the target task section before writing.
 6. Verification: after writing, inspect the target section and Git status; do not claim success unless the note contains the expected task line and Git is clean/synced after push.
 
 Task kind inference:
