@@ -7,13 +7,13 @@ Use this file when adding support for newly installed Obsidian plugins.
 1. List enabled plugins:
 
 ```bash
-python3 <skill-dir>/scripts/obsidian_workflows.py plugins
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py plugins
 ```
 
 2. List a plugin's command IDs:
 
 ```bash
-python3 <skill-dir>/scripts/obsidian_workflows.py commands --plugin <plugin-id>
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/obsidian_workflows.py commands --plugin <plugin-id>
 ```
 
 3. Inspect the plugin manifest and only the needed settings keys:
@@ -26,7 +26,7 @@ jq '.safeKeyNeededForThisWorkflow' ~/git/obsidian-2026/.obsidian/plugins/<plugin
 
 Treat `.obsidian/plugins/*/data.json` as potentially sensitive. Do not dump the whole file; read the minimal key required for the current workflow and redact credentials, tokens, account IDs, server URLs, cookies, and local absolute paths before returning output.
 
-4. Add only stable, user-facing command IDs to `references/runtime-sync.md`.
+4. Add only stable, user-facing command IDs to `references/core/runtime-sync.md`.
 5. If a workflow requires repeated parsing or file edits, extend `scripts/obsidian_workflows.py` with a subcommand instead of rewriting shell snippets in SKILL.md.
 
 ## Best-practice guardrails
@@ -42,7 +42,7 @@ Treat `.obsidian/plugins/*/data.json` as potentially sensitive. Do not dump the 
 
 ## Non-goals and isolated extensions
 
-- Do not merge `obsidian-management` directly into this skill's main workflow. It contains obsolete vault paths and an older Git policy. Keep only its privacy guardrails and high-level vault directory semantics, now captured in `references/vault-safety.md`.
+- Do not merge `obsidian-management` directly into this skill's main workflow. It contains obsolete vault paths and an older Git policy. Keep only its privacy guardrails and high-level vault directory semantics, now captured in `references/core/vault-safety.md`.
 - Do not merge `obsidian-manager` directly into this skill's main workflow. It is a compatibility layer for a specific research-note directory layout and is not a general Obsidian plugin command workflow.
 - If research-note templates are needed later, add a separate extension with explicit vault path, directory mapping, and template rules. Keep it independent from journal, Tasks, and Git-sync commands.
 - Prefer native Obsidian official CLI lookup through `official-commands` for generic vault operations, and prefer runtime plugin discovery through `commands --plugin <plugin-id>` for community plugin behavior.

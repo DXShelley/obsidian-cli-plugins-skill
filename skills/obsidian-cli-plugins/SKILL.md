@@ -1,11 +1,6 @@
 ---
 name: obsidian-cli-plugins
-description: >-
-  Use this skill when working with a real Obsidian vault through CLI-backed
-  workflows for vault diagnostics, Git sync, tasks, records, project notes,
-  attachments, plugin commands, safe vault reads, or OpenClaw sync.
-metadata:
-  category: productivity
+description: "Obsidian vault automation for configured vaults such as `obsidian-2026`: vault status/doctor, host Git sync/status with Obsidian Git plugin fallback only when host `git` is not found, Tasks todos, journal records, file or attachment records, project files under `01_project/` (`创建项目`, `项目记录`, `记到某项目`, `补充功能需求/非功能需求/决策/任务/问题`), QuickAdd, Journals, plugin/native commands, safe vault read/search, and OpenClaw sync. Prefer this skill over `obsidian-vault-maintainer` except for OpenClaw memory-wiki render mode or `openclaw wiki obsidian ...`. Do not use for unrelated database records, media recording, generic Markdown/Git, or note-taking outside an Obsidian vault."
 ---
 
 # Obsidian CLI Plugins
@@ -20,37 +15,22 @@ Run `doctor` first on a new host, container, SSH session, OpenClaw runtime, or u
 
 This skill is the required component for Obsidian functionality. It owns vault discovery, Git preflight, record creation, attachment copying, staged-attachment consumption, and sync.
 
-The `obsidian-media-claim` OpenClaw plugin is optional. It does not replace this skill and cannot create Obsidian records by itself. Its main purpose is to claim media-only channel uploads before OpenClaw sends them to the LLM, stage readable media paths for this skill, and avoid unnecessary token spend. If the plugin is absent, text records and explicit local `--attach` records still work through this skill, but media-only-then-text channel uploads need manual/runtime staging and may otherwise involve the model.
+The `obsidian-media-claim` OpenClaw plugin is optional. It does not replace this skill and cannot create Obsidian records by itself. Load `references/integrations/openclaw.md` only for OpenClaw sync, staged media, phone-channel media, or media-only-then-later-text workflows.
 
-## Trigger Rules
+## Scope Boundaries
 
-Use this skill when the user is operating a real Obsidian vault, especially a configured vault such as `obsidian-2026`.
+After this skill is selected, confirm the request is operating on a real Obsidian vault, especially a configured vault such as `obsidian-2026`.
 
-Strong triggers:
+Use this skill for vault status, Git sync/status inside a vault, journal records, Tasks todos, project files under `01_project/`, plugin/native commands, safe vault reads/searches, and OpenClaw skill sync.
 
-- Explicit skill or tooling: `$obsidian-cli-plugins`, `obsidian_workflows.py`, `obs_record_sync.py`, `sync_openclaw.py`.
-- Vault operations: `使用 vault ...`, `obsidian-2026`, `doctor`, Obsidian 状态, host Git status/sync, pull/push/commit inside a vault.
-- Obsidian content workflows: daily/weekly/monthly/quarterly/yearly journals, Tasks todos, `今日新增待办`, `今日待办`, `记录/记一条`, QuickAdd records, attachments copied into notes, safe vault reads/searches.
-- Project record workflows when tied to Obsidian or a vault: `01_project`, 项目文件, 项目记录, 创建项目文件, 查看项目结构对象, `project-template-structure`, `analyze-project-record`, `project-record-sync`, `target_id`, `template_structure`, `记到<项目>`, or project-file updates such as 功能需求、非功能需求、决策记录、项目任务、项目问题.
-- Obsidian plugin/native commands: Journals, Tasks plugin, Linter, `commands --plugin`, `official-commands`, `run <command-id>`. Use `obsidian-git:*` command IDs only as a fallback when the host `git` executable is not found.
-
-Conditional triggers: plain words such as `记录`, `任务`, `项目`, `笔记`, `Markdown`, `同步`, `附件`, or `搜索` require Obsidian/vault/journal/plugin/project-file context before using this skill.
-
-Do not use this skill for generic project management, generic Markdown editing, unrelated Git operations, database/business records, or screen/audio/video recording unless the result is explicitly going into an Obsidian vault.
+Do not use this skill for generic project management, generic Markdown editing, unrelated Git operations, database/business records, or screen/audio/video recording unless the result is explicitly going into an Obsidian vault. Use `obsidian-vault-maintainer` only for OpenClaw memory-wiki compatibility, especially requests that explicitly mention memory-wiki render mode or `openclaw wiki obsidian ...`.
 
 ## Quick Start
 
-Use these commands as representative entry points. For common requests, load `references/fast-paths.md` first.
+Run `doctor` first on unfamiliar runtimes. For common requests, load `references/core/fast-paths.md` and use its route table instead of loading larger references.
 
 ```bash
 python3 <skill-dir>/scripts/obsidian_workflows.py doctor
-python3 <skill-dir>/scripts/obsidian_workflows.py tasks show --period day --date today
-python3 <skill-dir>/scripts/obsidian_workflows.py add-task-sync --period day --date today --kind auto --text "<task text>"
-python3 <skill-dir>/scripts/obsidian_workflows.py record-sync --mode inline --period day --date today --text "<original record content>"
-python3 <skill-dir>/scripts/obs_record_sync.py --mode file --period day --date today --text "<record text>" --analysis-json '<model json>'
-python3 <skill-dir>/scripts/obsidian_workflows.py project-template-structure --project "<project>"
-python3 <skill-dir>/scripts/obsidian_workflows.py analyze-project-record --project "<project>" --text "<project detail>" --prompt-only
-python3 <skill-dir>/scripts/obsidian_workflows.py project-record-sync --project "<project>" --text "<project detail>" --analysis-json '<model json>'
 ```
 
 Configure per host or agent with environment variables instead of editing scripts:
@@ -65,38 +45,51 @@ Use `--vault current` or `--vault auto` to target the single currently open vaul
 
 ## Reference Routing
 
-User-facing and Agent-facing examples live under `docs/`:
+Treat `SKILL.md` as the router. Load only the smallest reference needed for the user's requested function.
 
-- `docs/user-usage.md`: user utterance examples grouped by feature.
-- `docs/agent-usage-examples.md`: matching Agent script examples and handling rules.
+Core references:
 
-Load only the reference needed for the request. Start with `references/fast-paths.md` for common operations, then load the smallest specific file:
+- `references/core/fast-paths.md`: first stop for common requests and high-frequency commands.
+- `references/core/runtime-sync.md`: runtime config, Git sync, plugin command IDs, security gates, portability, and cross-agent handoff.
+- `references/core/vault-safety.md`: safe read/search/summarization of arbitrary vault content or files outside `20_plan/`.
 
-- `references/fast-paths.md`: common request routing and high-frequency commands.
-- `references/runtime-sync.md`: runtime config, Git sync, plugin command IDs, security gates, portability, and cross-agent handoff.
-- `references/task-query.md`: `今日新增待办`, full today todo reports, and weekly todo reports.
-- `references/task-add.md`: adding tasks, date/tag inference, journal creation, and placement rules.
-- `references/record-workflows.md`: inline records, file-mode records, attachments, and staged media handoff.
-- `references/record-body.md`: file-mode record body sections, formatter behavior, and unified LLM analysis fields.
-- `references/vault-safety.md`: safe read/search/summarization of arbitrary vault content or files outside `20_plan/`.
-- `references/openclaw.md`: OpenClaw install/sync, channel media compatibility, phone-client multi-image/video input, and media-only messages followed by later text records.
-- `references/official-cli.md`: native Obsidian CLI command lookup beyond installed community plugin command IDs.
-- `references/extensions.md`: adding workflow support for newly installed Obsidian plugins.
-- `references/field-guide.md`: onboarding a new Agent, reviewing the vault directory map, or updating the skill from real-session lessons.
+Feature references:
+
+- `references/features/task-query.md`: `今日新增待办`, full today todo reports, and weekly todo reports.
+- `references/features/task-add.md`: adding tasks, date/tag inference, journal creation, and placement rules.
+- `references/features/record-workflows.md`: inline records, file-mode records, local attachments, and record success criteria.
+- `references/features/record-body.md`: file-mode record body sections, formatter behavior, and unified LLM analysis fields.
+- `references/features/project-records.md`: project files under `01_project/`, `template_structure`, `target_id`, semantic project JSON, and Linter behavior.
+
+Integration references:
+
+- `references/integrations/openclaw.md`: OpenClaw install/sync, staged media, phone-client media input, and media-only messages followed by later text records.
+- `references/integrations/official-cli.md`: native Obsidian CLI command lookup beyond installed community plugin command IDs.
+
+Maintenance references:
+
+- `references/maintenance/extensions.md`: adding workflow support for newly installed Obsidian plugins.
+- `references/maintenance/field-guide.md`: onboarding a new Agent, reviewing vault layout, write targets, template dependencies, or updating the skill from real-session lessons.
+- `references/legacy/tasks.md` and `references/legacy/workflows.md`: compatibility indexes only; prefer the specific files above.
+
+Directory boundaries:
+
+- Use `SKILL.md`, `references/`, and `scripts/` for Agent execution.
+- Use `references/` as the only normal source of task guidance; load the smallest relevant reference.
+- Treat `docs/` as human-facing documentation only. Do not read `docs/` during normal skill use.
+- Load files under `docs/` only when the user explicitly asks to read, update, summarize, or generate user-facing documentation.
 
 ## Execution Rules
 
 - On multi-vault hosts, inspect `doctor.configured_vaults` and `doctor.resolved_vault`; use `--vault current` only when the single-open-vault result is clear.
-- Use `safe-read` or `safe-search` before returning vault content. Otherwise apply `references/vault-safety.md` and redact sensitive content.
+- Use `safe-read` or `safe-search` before returning vault content. Otherwise apply `references/core/vault-safety.md` and redact sensitive content.
 - Use `add-task-sync` for task additions and `record-sync` for record additions unless the user explicitly asks for local-only writes.
-- For `记录 <content>` with no explicit period/date, write an inline record to today's daily journal `记录` section with the original text unchanged. Load `references/record-workflows.md` before changing record behavior.
-- Use file-mode records only for separate cards/notes, analysis, long-term capture, knowledge processing, or any attachment/media workflow. Load `references/record-body.md`; for staged or cross-agent media, also load `references/openclaw.md`.
-- For media files uploaded in earlier channel messages, treat images, videos, audio, and files as one staged media workflow. Prefer staged media created by `obsidian-media-claim` when that optional plugin is installed; otherwise require manual/runtime staging with readable local paths. First call `attachment-pending --ttl-hours 48` with the stable conversation/sender `--batch-key` when available, then consume the returned `selector` with file-mode `obs_record_sync.py --mode file --period <period> --date <date> --text "<text>" --staged-attachment "<selector>" --type mixed --require-attachment`. Do not use `attachment-list --batch-key default`, stale staged ids from model memory, or direct cache directory reads.
+- For `记录 <content>` with no explicit period/date, write an inline record to today's daily journal `记录` section with the original text unchanged. Load `references/features/record-workflows.md` before changing record behavior.
+- Use file-mode records only for separate cards/notes, analysis, long-term capture, knowledge processing, or any attachment/media workflow. Load `references/features/record-body.md`; for staged or cross-agent media, also load `references/integrations/openclaw.md`.
+- For media files uploaded in earlier channel messages, load `references/integrations/openclaw.md` before consuming staged attachments. Do not use `attachment-list --batch-key default`, stale staged ids from model memory, or direct cache directory reads.
 - For file-mode semantic analysis, obtain the shared prompt/schema via `analyze-record`, use the Agent application's own LLM/model, validate with `--normalized-only` when useful, and pass model-produced `--analysis-json`. Do not present hand-built JSON as semantic analysis.
-- For project notes under `01_project/`, use `project-template-structure` or `analyze-project-record` first. The current project/template headings and fragment templates produce a standard `template_structure` with `target_id` values. The Agent application's own LLM/model must output project record JSON using one of those `target_id` values, then `project-record-sync` writes it with `--analysis-json`. Do not bypass the project templates or hand-build semantic analysis JSON.
-- Project template parsing uses `markdown-it-py` when available for CommonMark-compatible heading tokens and line maps; if it is not installed, the scripts fall back to the built-in heading parser so users are not required to install optional dependencies.
-- `project-record-sync` opens the updated project note and runs Obsidian Linter (`obsidian-linter:lint-file`) before Git commit/push unless explicitly passed `--no-lint` for a controlled local-only test.
-- If a supplied attachment has no readable local path, stop with script-emitted `record-attachment-required` or `attachment-path-unavailable` instead of writing a partial record. Use `unsupported-channel-attachment-record` only as an Agent-level judgment when the runtime cannot expose or preserve attachment state for the CLI.
+- For project notes under `01_project/`, load `references/features/project-records.md` and use `project-template-structure` or `analyze-project-record` before writing. Do not bypass templates, `target_id`, semantic project JSON, or Linter behavior.
+- If a supplied attachment has no readable local path, stop with `record-attachment-required`, `attachment-path-unavailable`, or `unsupported-channel-attachment-record` instead of writing a partial record.
 - Before `pull`, `push`, `commit-sync`, or note edits, run `git-status`; stop on conflict state. Prefer `add-task-sync`, `record-sync`, or `git_preflight_clean` so host `git` clean/pull/push/commit sequencing is enforced. Fall back to Obsidian Git plugin commands only when the host `git` executable is not found, not when host Git returns a conflict, auth, pull, push, or commit error.
 - Treat `Executed: <command-id>` as dispatch success only; verify the actual vault/file/plugin effect afterward.
 - Ask before destructive operations such as discard, delete, reset, uninstall, vault-wide cleanup, or permanent deletion.
@@ -105,5 +98,5 @@ Load only the reference needed for the request. Start with `references/fast-path
 For OpenClaw, sync into the current managed skills directory, typically `~/.openclaw/skills/obsidian-cli-plugins`, with:
 
 ```bash
-python3 <skill-dir>/scripts/sync_openclaw.py
+python3 ~/.codex/skills/obsidian-cli-plugins/scripts/sync_openclaw.py
 ```
